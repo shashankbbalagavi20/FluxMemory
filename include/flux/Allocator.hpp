@@ -1,33 +1,32 @@
 #pragma once
-#include <cstddef>
+#include "SlabAllocator.hpp"
 #include <limits>
 #include <new>
 
 namespace flux {
 
-/**
- * @brief A fixed-size block allocator optimized for cache locality.
- * Implements the C++ Named Requirement: Allocator.
- */
 template <typename T>
 class Allocator {
 public:
     using value_type = T;
-    using size_type = std::size_t;
+
+    static SlabAllocator pool;
 
     Allocator() noexcept {}
     
     template <typename U>
     Allocator(const Allocator<U>&) noexcept {}
 
-    /**
-     * @brief Allocates memory for n objects of type T.
-     * Currently wraps ::operator new for baseline, transitioning to Slab backend.
-     */
+    template <typename U>
+    struct rebind{
+        using other = Allocator<U>;
+    };
+
     T* allocate(std::size_t n) {
-        if (n > std::numeric_limits<std::size_t>::max() / sizeof(T))
-            throw std::bad_alloc();
-            
+        if (n == 1){
+            return static_cast<T*>(pool.allocate());
+        }
+
         if (auto p = static_cast<T*>(::operator new(n * sizeof(T)))) {
             return p;
         }
@@ -35,10 +34,17 @@ public:
         throw std::bad_alloc();
     }
 
-    void deallocate(T* p, std::size_t) noexcept {
-        ::operator delete(p);
+    void deallocate(T* p, std::size_t n) noexcept {
+        if(n == 1){
+            pool.deallocate(p);
+        } else{
+            ::operator delete(p);
+        }
     }
 };
+
+template <typename T>
+SlabAllocator Allocator<T>::pool(sizeof(T));
 
 template <typename T, typename U>
 bool operator==(const Allocator<T>&, const Allocator<U>&) { return true; }
