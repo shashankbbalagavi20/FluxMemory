@@ -10,7 +10,7 @@ class Allocator {
 public:
     using value_type = T;
 
-    static SlabAllocator pool;
+    static thread_local SlabAllocator pool;
 
     Allocator() noexcept {}
     
@@ -44,7 +44,7 @@ public:
 };
 
 template <typename T>
-SlabAllocator Allocator<T>::pool(sizeof(T));
+thread_local SlabAllocator Allocator<T>::pool(sizeof(T));
 
 template <typename T, typename U>
 bool operator==(const Allocator<T>&, const Allocator<U>&) { return true; }

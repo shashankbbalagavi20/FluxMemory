@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <cstddef>
-#include <mutex>
 
 namespace flux {
     class SlabAllocator {
@@ -16,8 +15,6 @@ namespace flux {
             void* currentSlab = nullptr;
             Block* freeListHead = nullptr;
             std::vector<void*> allocatedSlabs;
-            
-            std::mutex m_mutex;
             
             explicit SlabAllocator(size_t size);
 

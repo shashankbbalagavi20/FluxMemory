@@ -19,7 +19,6 @@ namespace flux{
     }
 
     void* SlabAllocator::allocate(){
-        std::lock_guard<std::mutex> lock(m_mutex);
 
         if(freeListHead){
             Block* block = freeListHead;
@@ -37,7 +36,6 @@ namespace flux{
 
     void SlabAllocator::deallocate(void* ptr){
         if(!ptr) return;
-        std::lock_guard<std::mutex> lock(m_mutex);
         Block* block = static_cast<Block*>(ptr);
         block->next = freeListHead;
         freeListHead = block;
