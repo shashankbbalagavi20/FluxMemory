@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
 
-add_library(flux_memory INTERFACE)
-target_include_directories(flux_memory INTERFACE include)
+add_library(flux_memory src/SlabAllocator.cpp)
+target_include_directories(flux_memory PUBLIC include)
 
 add_executable(flux_test src/main.cpp)
 target_link_libraries(flux_test flux_memory)
