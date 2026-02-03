@@ -11,3 +11,12 @@ target_include_directories(flux_memory PUBLIC include)
 
 add_executable(flux_test src/main.cpp)
 target_link_libraries(flux_test flux_memory)
+
+add_executable(flux_bench benchmarks/Benchmark.cpp)
+target_link_libraries(flux_bench flux_memory)
+
+if(MSVC)
+    target_compile_options(flux_bench PRIVATE /02)
+else()
+    target_compile_options(flux_bench PRIVATE -O3)
+endif()
